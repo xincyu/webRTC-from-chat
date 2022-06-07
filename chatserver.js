@@ -40,7 +40,7 @@ const certFilePath = "/etc/pki/tls/certs/mdn-samples.mozilla.org.crt";
 // Used for managing the text chat user list.
 
 var connectionArray = [];
-var nextID = Date.now();
+var nextID = Date.now();  // 时间戳作为初始用户ID，后续ID自增
 var appendToMakeUnique = 1;
 
 // Output logging information to console

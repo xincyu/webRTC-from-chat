@@ -118,7 +118,7 @@ function connect() {
   connection.onerror = function(evt) {
     console.dir(evt);
   }
-  // 监听消息类型，触发对应的函数
+  // 监听消息类型，触发对应的函数。【该web端即是接受消息的一方，又是发送消息的一方】
   connection.onmessage = function(evt) {
     var chatBox = document.querySelector(".chatbox");
     var text = "";
@@ -180,7 +180,7 @@ function connect() {
     }
 
     // If there's text to insert into the chat buffer, do so now, then
-    // scroll the chat panel so that the new text is visible.
+    // scroll the chat panel so that the new text is visible.【立刻执行消息文本Text】
 
     if (text.length) {
       chatBox.innerHTML += text;
@@ -217,7 +217,7 @@ function handleKey(evt) {
 // selected STUN/TURN server and then uses getUserMedia() to find
 // our camera and microphone and add that stream to the connection for
 // use in our video call. Then we configure event handlers to get
-// needed notifications on the call.
+// needed notifications on the call. 【开启视频会话，创建 RTCPeerConnection，启用ICE服务】
 
 async function createPeerConnection() {
   log("Setting up a connection...");
@@ -384,7 +384,7 @@ function handleUserlistMsg(msg) {
     listElem.removeChild(listElem.firstChild);
   }
 
-  // Add member names from the received list.
+  // Add member names from the received list.【创建DOM元素li显示新成员，并添加点击事件】
 
   msg.users.forEach(function(username) {
     var item = document.createElement("li");
@@ -398,7 +398,7 @@ function handleUserlistMsg(msg) {
 // Close the RTCPeerConnection and reset variables so that the user can
 // make or receive another call if they wish. This is called both
 // when the user hangs up, the other user hangs up, or if a connection
-// failure is detected.
+// failure is detected.【当“挂断时”，关闭Peer连接，并重置所有变量。以便能接受其他呼叫】
 
 function closeVideoCall() {
   var localVideo = document.getElementById("local_video");
@@ -420,7 +420,7 @@ function closeVideoCall() {
     myPeerConnection.onicegatheringstatechange = null;
     myPeerConnection.onnotificationneeded = null;
 
-    // Stop all transceivers on the connection
+    // Stop all transceivers on the connection 【停止连接中的所有‘收发器’】
 
     myPeerConnection.getTransceivers().forEach(transceiver => {
       transceiver.stop();
@@ -464,7 +464,7 @@ function handleHangUpMsg(msg) {
 // the signaling is done on a different connection). This notifies
 // the other peer that the connection should be terminated and the UI
 // returned to the "no call in progress" state.
-
+// 【一方主动挂断，启用关停视频呼叫，并发送消息到服务器，转发到另一方。另一方监听消息，并启用关停视频呼叫】
 function hangUpCall() {
   closeVideoCall();
 
@@ -479,14 +479,14 @@ function hangUpCall() {
 // user to video chat. Note that we don't actually send a message to
 // the callee here -- calling RTCPeerConnection.addTrack() issues
 // a |notificationneeded| event, so we'll let our handler for that
-// make the offer.
+// make the offer.【提交邀约 RTCPeerConnection.addTrack()处理通知事件】
 
 async function invite(evt) {
   log("Starting to prepare an invitation");
   if (myPeerConnection) {
     alert("You can't start a call because you already have one open!");
   } else {
-    var clickedUsername = evt.target.textContent;
+    var clickedUsername = evt.target.textContent; // 原生的li文本（这里指用户名）
 
     // Don't allow users to call themselves, because weird.
 
@@ -506,7 +506,7 @@ async function invite(evt) {
     // not linked together in any way yet.
 
     log("Setting up connection to invite user: " + targetUsername);
-    createPeerConnection();
+    createPeerConnection(); // 创建视频会话的 RTCPeerConnection，启动ICE服务
 
     // Get access to the webcam stream and attach it to the
     // "preview" box (id "local_video").
