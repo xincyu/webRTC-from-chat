@@ -566,11 +566,11 @@ async function handleVideoOfferMsg(msg) {
     return;
   } else {
     log ("  - Setting remote description");
-    await myPeerConnection.setRemoteDescription(desc);
+    await myPeerConnection.setRemoteDescription(desc);// 【接收到视频邀请后，设置远程描述】
   }
 
   // Get the webcam stream if we don't already have it
-
+  // 【1、获取本地摄像头流】
   if (!webcamStream) {
     try {
       webcamStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -582,7 +582,7 @@ async function handleVideoOfferMsg(msg) {
     document.getElementById("local_video").srcObject = webcamStream;
 
     // Add the camera stream to the RTCPeerConnection
-
+    // 【2、推视频流到 RTCPeerConnection】  
     try {
       webcamStream.getTracks().forEach(
         transceiver = track => myPeerConnection.addTransceiver(track, {streams: [webcamStream]})
@@ -594,7 +594,7 @@ async function handleVideoOfferMsg(msg) {
 
   log("---> Creating and sending answer to caller");
 
-  await myPeerConnection.setLocalDescription(await myPeerConnection.createAnswer());
+  await myPeerConnection.setLocalDescription(await myPeerConnection.createAnswer()); // 【处理视频邀请后，设置本地描述并发送】
 
   sendToServer({
     name: myUsername,
@@ -606,7 +606,7 @@ async function handleVideoOfferMsg(msg) {
 
 // Responds to the "video-answer" message sent to the caller
 // once the callee has decided to accept our request to talk.
-
+// 【邀请方接受被邀请方的应答消息，并将对方发送的描述当做邀请方的远程描述】
 async function handleVideoAnswerMsg(msg) {
   log("*** Call recipient has accepted our call");
 
