@@ -19,4 +19,18 @@ A方：
 
 
     todo:再详细一下，结合图示；
+## 问题
+1、Uncaught TypeError: Cannot read properties of undefined (reading 'getUserMedia')
+
+  回答1：html5调用摄像头拍照如果在localhost下没有问题，而部署服务后碰到如下的错误：
+Uncaught TypeError: Cannot read properties of undefined (reading 'getUserMedia')
+这是因为webrtc需要使用https
+作者：allenjcheng
+链接：https://www.jianshu.com/p/53368a2ea9a1
+  回答2：而使用 http://localhost/xxxx/xxxx来调用摄像头则没有任何问题，这是因为浏览器有安全设置。
+进行如下设置，则可以放开录制权限：
+chrome://flags/#unsafely-treat-insecure-origin-as-secure
+在输入框中输入远程服务地址，将右侧的按钮，调整为enabled，然后点击右下角的重启按钮。
+再次使用ip地址来访问服务，调用摄像头，就一切正常。 
+https://blog.csdn.net/yunzhonghefei/article/details/120290541
  
