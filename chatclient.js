@@ -509,7 +509,7 @@ async function invite(evt) {
     createPeerConnection(); // 创建视频会话的 RTCPeerConnection，启动ICE服务
 
     // Get access to the webcam stream and attach it to the
-    // "preview" box (id "local_video").
+    // "preview" box (id "local_video").【1、获取本地摄像头流】
 
     try {
       webcamStream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
@@ -520,7 +520,7 @@ async function invite(evt) {
     }
 
     // Add the tracks from the stream to the RTCPeerConnection
-
+    // 【2、推视频流到 RTCPeerConnection】                                  
     try {
       webcamStream.getTracks().forEach(
         transceiver = track => myPeerConnection.addTransceiver(track, {streams: [webcamStream]})
@@ -531,6 +531,7 @@ async function invite(evt) {
   }
 }
 
+// 【处理 本地接受到视频电话请求offer；创建自己的RTCPeerConnection，并推送到本地媒流，最后回复呼叫着】
 // Accept an offer to video chat. We configure our local settings,
 // create our RTCPeerConnection, get and attach our local camera
 // stream, then create and send an answer to the caller.
@@ -543,7 +544,7 @@ async function handleVideoOfferMsg(msg) {
 
   log("Received video chat offer from " + targetUsername);
   if (!myPeerConnection) {
-    createPeerConnection();
+    createPeerConnection(); // 创建视频会话的 RTCPeerConnection，启动ICE服务
   }
 
   // We need to set the remote description to the received SDP offer
