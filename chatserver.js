@@ -34,8 +34,8 @@ var WebSocketServer = require('websocket').server;
 // Pathnames of the SSL key and certificate files to use for
 // HTTPS connections.
 
-const keyFilePath = "/etc/pki/tls/private/mdn-samples.mozilla.org.key";
-const certFilePath = "/etc/pki/tls/certs/mdn-samples.mozilla.org.crt";
+const keyFilePath = "./ssl/hibay.space.key";
+const certFilePath = "./ssl/hibay.space_bundle.crt";
 
 // Used for managing the text chat user list.
 
