@@ -35,8 +35,8 @@ var WebSocketServer = require('websocket').server;
 // HTTPS connections.
 // 【构建HTTPS服务的证书信息，使用Websocket通信】
 
-const keyFilePath = "/etc/pki/tls/private/mdn-samples.mozilla.org.key";
-const certFilePath = "/etc/pki/tls/certs/mdn-samples.mozilla.org.crt";
+const keyFilePath = "./ssl/hibay.space.key";
+const certFilePath = "./ssl/hibay.space_bundle.crt";
 
 // Used for managing the text chat user list.
 

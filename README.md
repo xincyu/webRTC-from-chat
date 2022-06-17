@@ -36,5 +36,9 @@ Uncaught TypeError: Cannot read properties of undefined (reading 'getUserMedia')
 在输入框中输入远程服务地址，将右侧的按钮，调整为enabled，然后点击右下角的重启按钮。
 再次使用ip地址来访问服务，调用摄像头，就一切正常。 
 https://blog.csdn.net/yunzhonghefei/article/details/120290541
+
+
+2、客户端部署在https上，链接不到wss服务，因为ssl证书没有设置正确；
+  server.js 中设置正确ssl证书的路径。
  
 2. 其他
