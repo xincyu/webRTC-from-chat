@@ -13,11 +13,13 @@
 
 // Get our hostname
 
-var myHostname = window.location.hostname;
+var myHostname = window.location.hostname;  // 【获取客户端/服务器所存放地址】
 if (!myHostname) {
+  console.log('get window.location.hostname failed..')
   myHostname = "localhost";
 }
 log("Hostname: " + myHostname);
+
 
 // WebSocket chat/signaling channel variables.
 
@@ -98,19 +100,19 @@ function setUsername() {
 function connect() {
   var serverUrl;
   var scheme = "ws";
-
+  document.getElementById("input_host").value = myHostname // 显示信令服务器地址
   // If this is an HTTPS connection, we have to use a secure WebSocket
   // connection too, so add another "s" to the scheme.
 
-  if (document.location.protocol === "https:") {
+  if (document.location.protocol === "https:") {  // 【若web端所处http协议是https,更改websocket服务连接为wss://,默认二者在同一地址】
     scheme += "s";
   }
   serverUrl = scheme + "://" + myHostname + ":6503";
 
   log(`Connecting to server: ${serverUrl}`);
-  connection = new WebSocket(serverUrl, "json");
+  connection = new WebSocket(serverUrl, "json"); // 【创建与WebSocket服务地址的连接】
 
-  connection.onopen = function(evt) {
+  connection.onopen = function(evt) { // 【开放文本使用按钮】
     document.getElementById("text").disabled = false;
     document.getElementById("send").disabled = false;
   };
@@ -230,7 +232,7 @@ async function createPeerConnection() {
       {
         urls: "turn:" + myHostname,  // A TURN server
         username: "webrtc",
-        credential: "turnserver"
+        credential: "turnserver"  // 【RTCPeerConnection 最终包含了 Turn-RTC服务器配置，SDP配置描述 等等】
       }
     ]
   });
@@ -241,7 +243,7 @@ async function createPeerConnection() {
   myPeerConnection.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
   myPeerConnection.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
   myPeerConnection.onsignalingstatechange = handleSignalingStateChangeEvent;
-  myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
+  myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent; // 协商需求，发送服务端本地描述信息
   myPeerConnection.ontrack = handleTrackEvent;
 }
 
@@ -268,7 +270,7 @@ async function handleNegotiationNeededEvent() {
     // description.
 
     log("---> Setting local description to the offer");
-    await myPeerConnection.setLocalDescription(offer);
+    await myPeerConnection.setLocalDescription(offer); // 【设置本地描述】
 
     // Send the offer to the remote peer.
 
@@ -613,13 +615,13 @@ async function handleVideoAnswerMsg(msg) {
   // Configure the remote description, which is the SDP payload
   // in our "video-answer" message.
 
-  var desc = new RTCSessionDescription(msg.sdp);
+  var desc = new RTCSessionDescription(msg.sdp); // 创造并设置远程的连接IP和信息，知晓如何去与远端IP通信，查找UDP地址等等
   await myPeerConnection.setRemoteDescription(desc).catch(reportError);
 }
 
 // A new ICE candidate has been received from the other peer. Call
 // RTCPeerConnection.addIceCandidate() to send it along to the
-// local ICE framework.
+// local ICE framework.【？添加候选的视频会话人】
 
 async function handleNewICECandidateMsg(msg) {
   var candidate = new RTCIceCandidate(msg.candidate);

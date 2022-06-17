@@ -33,6 +33,7 @@ var WebSocketServer = require('websocket').server;
 
 // Pathnames of the SSL key and certificate files to use for
 // HTTPS connections.
+// 【构建HTTPS服务的证书信息，使用Websocket通信】
 
 const keyFilePath = "/etc/pki/tls/private/mdn-samples.mozilla.org.key";
 const certFilePath = "/etc/pki/tls/certs/mdn-samples.mozilla.org.crt";
@@ -40,7 +41,7 @@ const certFilePath = "/etc/pki/tls/certs/mdn-samples.mozilla.org.crt";
 // Used for managing the text chat user list.
 
 var connectionArray = [];
-var nextID = Date.now();  // 时间戳作为初始用户ID，后续ID自增
+var nextID = Date.now();
 var appendToMakeUnique = 1;
 
 // Output logging information to console
@@ -176,7 +177,7 @@ try {
 
 if (!webServer) {
   try {
-    webServer = http.createServer({}, handleWebRequest);
+    webServer = http.createServer({}, handleWebRequest); // 【HTTP模块请求执行连接信息log输出】
   } catch(err) {
     webServer = null;
     log(`Error attempting to create HTTP(s) server: ${err.toString()}`);
@@ -189,7 +190,7 @@ if (!webServer) {
 // requests are handled by the main server on the box. If you
 // want to, you can return real HTML here and serve Web content.
 
-function handleWebRequest(request, response) {
+function handleWebRequest(request, response) {  // 【http.createServer 的回调函数，包含请求的参数】
   log ("Received request for " + request.url);
   response.writeHead(404);
   response.end();
@@ -203,6 +204,7 @@ webServer.listen(6503, function() {
 });
 
 // Create the WebSocket server by converting the HTTPS server into one.
+// 【 将HTTP/S服务转换成 WebSocket服务：起一个HTTP服务并包装进 WebSocketServer】
 
 var wsServer = new WebSocketServer({
   httpServer: webServer,
@@ -213,6 +215,7 @@ if (!wsServer) {
   log("ERROR: Unable to create WbeSocket server!");
 }
 
+/** AAA 启用 websocket 服务，监听任意远端请求 request消息 */
 // Set up a "connect" message handler on our WebSocket server. This is
 // called whenever a user connects to the server's port using the
 // WebSocket protocol.
@@ -225,30 +228,31 @@ wsServer.on('request', function(request) {
   }
 
   // Accept the request and get a connection.
-
+  // 【1、收到请求，获取连接】
   var connection = request.accept("json", request.origin);
 
-  // Add the new connection to our list of connections.
+  // Add the new connection to our list of connections.【注册当前IP的“连接”信息；practice：使用用户数据库ID直接注册发送连接消息】
 
   log("Connection accepted from " + connection.remoteAddress + ".");
   connectionArray.push(connection);
 
-  connection.clientID = nextID;
+  connection.clientID = nextID; // 【当前时间戳为请求用户ID】
   nextID++;
 
   // Send the new client its token; it send back a "username" message to
-  // tell us what username they want to use.
+  // tell us what username they want to use. 【发送用户姓名/ID到客户端】
 
   var msg = {
     type: "id",
     id: connection.clientID
   };
-  connection.sendUTF(JSON.stringify(msg));
+  connection.sendUTF(JSON.stringify(msg)); // 【立即发送 UTF8  WebSocket message to the remote peer】
 
   // Set up a handler for the "message" event received over WebSocket. This
   // is a message sent by a client, and may be text to share with other
   // users, a private message (text or signaling) for one user, or a command
   // to the server.
+  // 【2、细分请求 request 的连接信息】
 
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
@@ -258,7 +262,7 @@ wsServer.on('request', function(request) {
 
       var sendToClients = true;
       msg = JSON.parse(message.utf8Data);
-      var connect = getConnectionForID(msg.id);
+      var connect = getConnectionForID(msg.id); // 【查找之前登录注册过连接信息，根据ID调出当前连接信息】
 
       // Take a look at the incoming object and act on it based
       // on its type. Unknown message types are passed through,
@@ -273,7 +277,7 @@ wsServer.on('request', function(request) {
           msg.text = msg.text.replace(/(<([^>]+)>)/ig, "");
           break;
 
-        // Username change
+        // Username change 【更换用户名消息类型？】
         case "username":
           var nameChanged = false;
           var origName = msg.name;
@@ -313,7 +317,7 @@ wsServer.on('request', function(request) {
       // pass through any messages not specifically handled
       // in the select block above. This allows the clients to
       // exchange signaling and other control objects unimpeded.
-
+      // 【如果msg.target被指定，发送消息到指定用户 ；否则群发】
       if (sendToClients) {
         var msgString = JSON.stringify(msg);
         var i;
